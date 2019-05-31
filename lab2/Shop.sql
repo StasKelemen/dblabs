@@ -1,4 +1,4 @@
-CREATE DATABASE `Shop`;
+CREATE DATABASE `Shop` CHARACTER SET utf8;
 
 CREATE TABLE `Shop`.`Producer` (
   `idProducer` MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -21,12 +21,14 @@ CREATE TABLE `Shop`.`Shop` (
 );
 
 
-CREATE TABLE `Shop`.`Storage` (
-  `idStorage` MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `phone` CHAR(10) NOT NULL,
+CREATE TABLE `Shop`.`Order` (
+  `idOrder` MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `order_price` INT UNSIGNED NOT NULL,
+  `order_date` DATETIME NOT NULL,
+  `delivery_date` DATETIME NOT NULL,
   `idShop` MEDIUMINT UNSIGNED NOT NULL,
-  PRIMARY KEY (`idStorage`),
-  CONSTRAINT `Storage_Shop`
+  PRIMARY KEY (`idOrder`),
+  CONSTRAINT `Order_Shop`
     FOREIGN KEY (`idShop`)
     REFERENCES `Shop`.`Shop` (`idShop`)
     ON DELETE NO ACTION
@@ -34,23 +36,8 @@ CREATE TABLE `Shop`.`Storage` (
 );
 
 
-CREATE TABLE `Shop`.`Order` (
-  `idOrder` MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `order_price` INT NOT NULL,
-  `order_date` DATETIME NOT NULL,
-  `delivery_date` DATETIME NOT NULL,
-  `idStorage` MEDIUMINT UNSIGNED NOT NULL,
-  PRIMARY KEY (`idOrder`),
-  CONSTRAINT `Order_Storage`
-    FOREIGN KEY (`idStorage`)
-    REFERENCES `Shop`.`Storage` (`idStorage`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION
-);
-
-
 CREATE TABLE `Shop`.`Brand` (
- `idBrand` MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
+`idBrand` MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(50) NOT NULL,
   PRIMARY KEY (`idBrand`),
   CONSTRAINT `name_UNIQUE` UNIQUE(`name`)
@@ -60,19 +47,19 @@ CREATE TABLE `Shop`.`Brand` (
 CREATE TABLE `Shop`.`Category` (
   `idCategory` MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(50) NOT NULL,
-  number MEDIUMINT UNSIGNED NOT NULL,
+  `category_num` MEDIUMINT UNSIGNED NOT NULL,
   PRIMARY KEY (`idCategory`),
   CONSTRAINT `name_UNIQUE` UNIQUE(`name`)
 );
 
-CREATE TABLE `Shop`.`Thing_Type` (
-  `idThingType` MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
+CREATE TABLE `Shop`.`Type_Thing` (
+  `idTypeThing` MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(45) NOT NULL,
-  `number` INT UNSIGNED NOT NULL,
+  `type_num` INT UNSIGNED NOT NULL,
   `idCategory` MEDIUMINT UNSIGNED NOT NULL,
-  PRIMARY KEY (`idThingType`),
+  PRIMARY KEY (`idTypeThing`),
   CONSTRAINT `name_UNIQUE` UNIQUE(`name`),
-  CONSTRAINT `Thing_Type_Category`
+  CONSTRAINT `Type_Thing__Category`
     FOREIGN KEY (`idCategory`)
     REFERENCES `Shop`.`Category` (`idCategory`)
     ON DELETE NO ACTION
@@ -84,54 +71,41 @@ CREATE TABLE `Shop`.`Thing` (
   `idThing` MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `name_product` VARCHAR(50) NOT NULL,
   `price` INT UNSIGNED NOT NULL,
-  `number` INT UNSIGNED NOT NULL,
+  `total_num` INT UNSIGNED NOT NULL,
   `idProducer` MEDIUMINT UNSIGNED NOT NULL,
   `idBrand` MEDIUMINT UNSIGNED NOT NULL,
-  `idThingType` MEDIUMINT UNSIGNED NOT NULL,
+  `idTypeThing` MEDIUMINT UNSIGNED NOT NULL,
   PRIMARY KEY (`idThing`),
   CONSTRAINT `Thing_Producer`
     FOREIGN KEY (`idProducer`)
     REFERENCES `Shop`.`Producer` (`idProducer`),
-  CONSTRAINT `Thing_Brand`
+  CONSTRAINT `Thing__Brand`
     FOREIGN KEY (`idBrand`)
     REFERENCES `Shop`.`Brand` (`idBrand`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `Thing_Thing_Type`
-    FOREIGN KEY (`idThingType`)
-    REFERENCES `Shop`.`Thing_Type` (`idThingType`)
+  CONSTRAINT `Type_Thing__Thing`
+    FOREIGN KEY (`idTypeThing`)
+    REFERENCES `Shop`.`Type_Thing` (`idTypeThing`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 );
 
 
-CREATE TABLE `Shop`.`Order_Thing` (
+CREATE TABLE `Shop`.`Ordered_Thing` (
+  `idOrderedThing` MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `idOrder` MEDIUMINT UNSIGNED NOT NULL,
   `idThing` MEDIUMINT UNSIGNED NOT NULL,
-  CONSTRAINT `Order_Thing_Order`
+  `ordered_num` INT UNSIGNED NOT NULL,
+  PRIMARY KEY (`idOrderedThing`),
+  CONSTRAINT `Ordered_Thing__Order`
     FOREIGN KEY (`idOrder`)
     REFERENCES `Shop`.`Order` (`idOrder`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `Order_Thing_Thing`
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+  CONSTRAINT `Ordered_Thing__Thing`
     FOREIGN KEY (`idThing`)
     REFERENCES `Shop`.`Thing` (`idThing`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION
-);
-
-
-CREATE TABLE `Shop`.`Storage_Thing` (
-  `idStorage` MEDIUMINT UNSIGNED NOT NULL,
-  `idThing` MEDIUMINT UNSIGNED NOT NULL,
-  CONSTRAINT `Storage_Thing_Storage`
-    FOREIGN KEY (`idStorage`)
-    REFERENCES `Shop`.`Storage` (`idStorage`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `Storage_Thing_Thing`
-    FOREIGN KEY (`idThing`)
-    REFERENCES `Shop`.`Thing` (`idThing`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION
+    ON DELETE CASCADE
+    ON UPDATE CASCADE
 );
