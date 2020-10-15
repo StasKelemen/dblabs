@@ -1,1 +1,0 @@
-mongo "mongodb+srv://cluster0-1lzt1.mongodb.net/test" --username root
